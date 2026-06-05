@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Production Master Matrix Pro</title>
+    <style>
+        :root { 
+            --bg: #091118; 
+            --panel-bg: #111c24; 
+            --nav-bg: #161b22;
+            --border-color: #21313c;
+            --text-white: #ffffff;
+            --btn-blue: #2374b5;
+        }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--text-white); 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
+            padding: 15px; 
+            margin: 0;
+        }
+        
+        /* Navigation Framework */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; max-width: 1650px; margin: 0 auto 15px auto; gap: 20px; flex-wrap: wrap; }
+        .navbar { background: #121e28; padding: 6px; display: flex; gap: 6px; border: 1px solid var(--border-color); border-radius: 8px; flex-wrap: wrap; }
+        .nav-btn { background: transparent; border: none; color: #8ba2b5; padding: 8px 18px; cursor: pointer; border-radius: 6px; font-weight: 600; font-size: 13px; transition: all 0.2s; }
+        .nav-btn:hover { color: #fff; background: #1c2e3d; }
+        .nav-btn.active { color: white; background: #263c4e; box-shadow: inset 0 0 0 1px #486e8a; }
+        
+        .btn-pdf-export { background: #c0392b; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
+
+        /* Variant Controls */
+        .variety-control-panel { background: #16222f; border: 1px solid var(--border-color); padding: 10px 15px; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; max-width: 1650px; margin-left: auto; margin-right: auto; box-sizing: border-box; }
+        .profile-group { display: flex; align-items: center; gap: 10px; }
+        .profile-label { font-size: 13px; font-weight: bold; color: #ffffff; }
+        .profile-select { background: #1c2e3d; border: 1px solid var(--border-color); color: white; padding: 5px 10px; border-radius: 6px; font-weight: bold; outline: none; min-width: 340px; font-size: 13px; }
+        .meta-text-input { background: #0b151d; border: 1px solid var(--border-color); color: white; padding: 5px 10px; border-radius: 6px; font-size: 12px; outline: none; }
+        .btn-action-del { background: #ba4a3f; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .btn-action-create { background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
+
+        /* Structuring Components */
+        .page { display: none; }
+        .page.active { display: block; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1650px; margin: 0 auto 10px auto; }
+        .page-title { color: #4dbb63; margin: 0; font-size: 22px; font-weight: 600; }
+        
+        .main-card { background: var(--panel-bg); width: 100%; max-width: 1650px; margin: 0 auto; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.6); box-sizing: border-box; overflow-x: auto; }
+        
+        /* Table Layouts */
+        table { width: 100%; border-collapse: collapse; background: #ffffff; color: #000000; margin-bottom: 20px; border-radius: 6px; overflow: hidden; table-layout: fixed; }
+        th, td { border: 1px solid #b4c6e7; padding: 4px 8px; text-align: left; font-size: 13px; vertical-align: middle; word-wrap: break-word; }
+        
+        .col-idx { width: 45px; text-align: center; font-weight: bold; }
+        .col-spacer { width: 20px; background: #f2f2f2; text-align: center; color: #777; font-weight: bold; }
+        
+        .row-header-dept td { padding: 4px 8px !important; background-color: #c6e0b4 !important; font-weight: bold; color: black !important; font-size: 13px; }
+        .row-main-act td { padding: 3px 8px !important; background-color: #deeaf6 !important; font-weight: bold; color: black; }
+        .row-sub-act td { padding: 3px 8px !important; background-color: #ffffff !important; color: black; }
+        
+        td textarea, td input, td select { background: transparent; border: none; color: inherit; width: 100%; outline: none; font-size: 13px; font-family: inherit; padding: 1px 0; box-sizing: border-box; }
+        td textarea { resize: none; overflow: hidden; height: auto; font-weight: bold; line-height: 1.2; display: block; }
+        td input:focus, td textarea:focus, td select:focus { background: #fff2cc !important; color: black !important; border-radius: 2px; }
+        td input[type="number"] { text-align: center; font-weight: bold; }
+        td select { font-weight: bold; background-color: #fff2cc; cursor: pointer; color: black; border: 1px dashed #b4c6e7; border-radius: 4px; padding: 2px; }
+        
+        .btn-sub-add-inline { background: #2374b5; color: white; border: none; padding: 2px 8px; cursor: pointer; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .btn-section-global-add { background: #27ae60; color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+
+        /* Excel Dashboard Layout Specifics */
+        .excel-top-header { background: #fce4d6 !important; font-weight: bold; text-align: center; font-size: 14px; color: black !important; }
+        .excel-shift-head { background: #deeaf6 !important; font-weight: bold; text-align: center; color: black !important; }
+        .excel-summary-val { background: #e2efda !important; font-weight: bold; text-align: center; color: black !important; }
+        .excel-val-red { color: red !important; font-weight: bold; text-align: center; }
+        
+        .editable-cell-dash { background: #ffffff !important; color: black !important; font-weight: bold; text-align: center; box-shadow: inset 0 0 0 1px #b4c6e7; }
+        .readonly-pink { background: #ffcccc !important; color: black !important; text-align: center; font-weight: bold; }
+
+        /* Page 5 Lead Time Styles */
+        .lt-yellow { background-color: #fff2cc !important; color: black !important; font-weight: bold; text-align: center; }
+        .lt-green { background-color: #e2efda !important; color: black !important; font-weight: bold; }
+        .lt-blue { background-color: #ddebf7 !important; color: black !important; font-weight: bold; text-align: center; }
+        .lt-total { background-color: #f2f2f2 !important; color: black !important; text-align: center; font-weight: bold; }
+        
+        /* Conditional Colors for Total Shift Column */
+        .lt-total-white { background-color: #ffffff !important; color: black !important; text-align: center; font-weight: bold; }
+        .lt-total-red { background-color: #e74c3c !important; color: white !important; text-align: center; font-weight: bold; border: 2px solid #c0392b; }
+        .lt-total-green { background-color: #2ecc71 !important; color: white !important; text-align: center; font-weight: bold; border: 2px solid #27ae60; }
+
+        .meta-cell-label { background: #f2f2f2 !important; font-weight: bold; text-align: center; color: black; font-size: 12px; white-space: nowrap; }
+        .meta-cell-value { background: #ffffff !important; padding: 2px 6px !important; }
+        .meta-cell-value input { width: 100%; color: black; font-weight: normal; font-size: 12px; background: transparent; }
+
+        .input-inline-bottom { background: #ffffff; border: 1px solid #b4c6e7; padding: 3px 6px; border-radius: 4px; color: black; font-size: 12px; margin-right: 4px; }
+        .center-text { text-align: center; }
+        .delete-btn { color: #e74c3c; cursor: pointer; border: none; background: none; font-weight: bold; font-size: 15px; width: 100%; display: block; text-align: center; line-height: 1; }
+        
+        .editable-section-title { background: transparent; font-weight: bold; color: #000000; font-size: 13px; border: none; width: 90%; cursor: text; padding: 0; }
+        .editable-section-title:focus { background: #fff2cc !important; outline: none; }
+        
+        .p1-header-input-field { background: transparent; font-weight: bold; border: none; color: #4dbb63; font-size: 14px; width: 300px; padding: 2px; border-bottom: 1px dashed #4dbb63; }
+        .p1-header-input-field:focus { background: #121e28 !important; outline: none; }
+
+        @media print {
+            body { background: #fff !important; padding: 0 !important; margin: 0 !important; color: #000 !important; }
+            .top-bar, .header-container, .variety-control-panel, .btn-sub-add-inline, .delete-btn, .btn-section-global-add { display: none !important; }
+            .main-card { border: none !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; overflow: visible !important; }
+            .excel-top-header, .excel-shift-head, .row-header-dept td, .editable-cell-dash, .readonly-pink, .meta-cell-label, .excel-summary-val, .row-main-act td, .row-sub-act td, .lt-yellow, .lt-green, .lt-blue, .lt-total, .lt-total-white, .lt-total-red, .lt-total-green {
+                -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+            }
+            input, textarea, select { border: none !important; background: transparent !important; color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="navbar">
+        <button class="nav-btn active" onclick="switchTab(event, 'activitiesPage')">Activities Base</button>
+        <button class="nav-btn" onclick="switchTab(event, 'autoTransformerPage')">Transformer Varieties</button>
+        <button class="nav-btn" onclick="switchTab(event, 'mfgSystemPage')">Manufacturing System</button>
+        <button class="nav-btn" onclick="switchTab(event, 'leadTimePage')">Lead Time Matrix</button>
+    </div>
+</div>
+
+<div id="activitiesPage" class="page active">
+    <div class="header-container">
+        <h2 class="page-title">Activities Master Panel (Main Configuration System)</h2>
+        <button class="btn-section-global-add" onclick="promptAddNewGlobalSection()">➕ Add New Core Section</button>
+    </div>
+    <div class="main-card">
+        <div id="tableContainer"></div>
+    </div>
+</div>
+
+<div id="autoTransformerPage" class="page">
+    <div class="header-container">
+        <h2 class="page-title">Transformer Production Dashboard (Multi-Variant Profiles)</h2>
+        <button class="btn-pdf-export" onclick="window.print()">💾 Export PDF Report</button>
+    </div>
+    <div class="variety-control-panel">
+        <div class="profile-group">
+            <span class="profile-label">Select Active Variant Template:</span>
+            <select id="varietyDropdown" class="profile-select" onchange="switchVarietyProfile()"></select>
+            <button class="btn-action-create" style="background:#f39c12;" onclick="renameVarietyProfile()">✏️ Rename</button>
+            <button class="btn-action-del" onclick="deleteVarietyProfile()">❌ Delete</button>
+        </div>
+        <div class="profile-group">
+            <span class="profile-label">Create Custom Variant:</span>
+            <input type="text" id="newVarietyInput" class="meta-text-input" style="width:180px;" placeholder="e.g. 765 KV Special Variant">
+            <button class="btn-action-create" onclick="createVarietyProfile()">+ Create Variety</button>
+        </div>
+    </div>
+    <div class="main-card">
+        <table>
+            <colgroup>
+                <col style="width: 5%;">
+                <col style="width: 32%;">
+                <col style="width: 9%;">
+                <col style="width: 8%;">
+                <col style="width: 8%;">
+                <col style="width: 8%;">
+                <col style="width: 8%;">
+                <col style="width: 8%;">
+                <col style="width: 14%;">
+            </colgroup>
+            <thead>
+                <tr class="excel-top-header">
+                    <td colspan="4" id="p3DynamicTitle" style="text-align: center;">Transformer Profile Matrix</td>
+                    <td colspan="2" class="excel-shift-head">Working Shift</td>
+                    <td class="editable-cell-dash" style="padding: 0;"><input type="number" style="color:red;" id="p3WorkingShift" oninput="saveGlobalSettings(); calculateOperationalMetrics()"></td>
+                    <td colspan="2" style="background:#fce4d6;"></td>
+                </tr>
+                <tr>
+                    <td class="meta-cell-label">Job No:</td>
+                    <td class="meta-cell-value" colspan="1"><input type="text" id="p3JobNo" placeholder="Job No..." onchange="saveVarietyMetaState()"></td>
+                    <td class="meta-cell-label">Customer:</td>
+                    <td class="meta-cell-value" colspan="2"><input type="text" id="p3Customer" placeholder="Customer..." onchange="saveVarietyMetaState()"></td>
+                    <td class="meta-cell-label">MVA:</td>
+                    <td class="meta-cell-value" colspan="1"><input type="text" id="p3Mva" placeholder="MVA..." onchange="saveVarietyMetaState()"></td>
+                    <td class="meta-cell-label">KV Class:</td>
+                    <td class="meta-cell-value" colspan="1"><input type="text" id="p3Kv" placeholder="KV Class..." onchange="saveVarietyMetaState()"></td>
+                </tr>
+                <tr class="excel-shift-head">
+                    <td colspan="2"></td>
+                    <td style="text-align:right; font-weight:bold;">Shift Hrs</td>
+                    <td class="editable-cell-dash" style="padding: 0;"><input type="number" style="color:red;" id="p3ShiftHrs" oninput="saveGlobalSettings(); calculateOperationalMetrics()"></td>
+                    <td class="excel-summary-val" id="p3GrandShift">0.00</td>
+                    <td class="excel-summary-val" id="p3GrandMan">0</td>
+                    <td class="excel-summary-val" id="p3GrandManShift">0.00</td>
+                    <td class="excel-summary-val excel-val-red" id="p3GrandDays">0.00</td>
+                    <td colspan="2" style="background:#deeaf6;"></td>
+                </tr>
+                <tr style="background:#d9d9d9; font-weight:bold; text-align:center; color:black;">
+                    <td style="text-align:center; white-space:nowrap;">Sno.</td>
+                    <td>Activity Details Description</td>
+                    <td style="text-align:center;">Hrs</td>
+                    <td style="text-align:center;">Frequency</td>
+                    <td style="text-align:center;">Shift</td>
+                    <td style="text-align:center;">Man</td>
+                    <td style="text-align:center;">Man shift</td>
+                    <td style="text-align:center;">Days</td>
+                    <td style="text-align:center;">Remark</td>
+                </tr>
+            </thead>
+            <tbody id="p3DashMasterBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="mfgSystemPage" class="page">
+    <div class="header-container">
+        <h2 class="page-title">Manufacturing Manpower Management System</h2>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-section-global-add" style="background: #2374b5;" onclick="addMfgRow()">➕ Add New Row</button>
+            <button class="btn-pdf-export" onclick="window.print()">💾 Export PDF Report</button>
+        </div>
+    </div>
+    <div class="main-card">
+        <table>
+            <thead>
+                <tr class="excel-top-header">
+                    <td colspan="8">Manufacturing System - Operational Capacity Matrix</td>
+                </tr>
+                <tr style="background:#d9d9d9; font-weight:bold; text-align:center; color:black;">
+                    <td style="width: 60px;">Qty</td>
+                    <td>Machine / Activity Description</td>
+                    <td style="width: 80px;">Shift</td>
+                    <td style="width: 100px;">Technician</td>
+                    <td style="width: 100px;">Helper</td>
+                    <td style="width: 100px;">Total</td>
+                    <td style="width: 150px;">Monthly (24d)</td>
+                    <td style="width: 40px;">Act</td>
+                </tr>
+            </thead>
+            <tbody id="mfgDashBody"></tbody>
+            <tfoot>
+                <tr class="excel-shift-head">
+                    <td colspan="5" style="text-align:right;">Grand Total Monthly Requirement:</td>
+                    <td id="mfgGrandTotal" class="excel-summary-val">0</td>
+                    <td id="mfgGrandMonthly" class="excel-summary-val excel-val-red">0</td>
+                    <td></td> 
+                </tr>
+                <tr class="excel-top-header">
+                    <td colspan="5" style="text-align:right;">Grand Total Yearly Requirement (12 Months):</td>
+                    <td colspan="2" id="mfgGrandYearly" class="excel-val-red" style="font-size:18px;">0</td>
+                    <td></td> 
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div id="leadTimePage" class="page">
+    <div class="header-container">
+        <h2 class="page-title">Lead Time in Man Shift (Monthly)</h2>
+        <button class="btn-pdf-export" onclick="window.print()">💾 Export PDF Report</button>
+    </div>
+    <div class="main-card">
+        <table style="min-width: 1300px;">
+            <thead>
+                <tr>
+                    <td colspan="13" class="lt-yellow" style="font-size:15px; padding:6px;">LEAD TIME IN MAN SHIFT (Monthly)</td>
+                </tr>
+                <tr>
+                    <td class="lt-green"></td>
+                    <td class="lt-green" style="text-align:right; padding-right:15px;">Monthly Job Qty (Nos)</td>
+                    
+                    <td class="lt-yellow"></td>
+                    <td class="editable-cell-dash" style="background:#ddebf7 !important;"><input type="number" id="lt_qty_0" oninput="updateLeadTimeData('qty', 0, this.value)"></td>
+                    
+                    <td class="lt-yellow"></td>
+                    <td class="editable-cell-dash" style="background:#ddebf7 !important;"><input type="number" id="lt_qty_1" oninput="updateLeadTimeData('qty', 1, this.value)"></td>
+                    
+                    <td class="lt-yellow"></td>
+                    <td class="editable-cell-dash" style="background:#ddebf7 !important;"><input type="number" id="lt_qty_2" oninput="updateLeadTimeData('qty', 2, this.value)"></td>
+                    
+                    <td class="lt-yellow"></td>
+                    <td class="editable-cell-dash" style="background:#ddebf7 !important;"><input type="number" id="lt_qty_3" oninput="updateLeadTimeData('qty', 3, this.value)"></td>
+                    
+                    <td class="lt-yellow"></td>
+                    <td class="editable-cell-dash" style="background:#ddebf7 !important;"><input type="number" id="lt_qty_4" oninput="updateLeadTimeData('qty', 4, this.value)"></td>
+                    
+                    <td class="lt-blue" id="lt_qty_total" style="font-size:16px;">0</td>
+                </tr>
+                <tr>
+                    <td class="lt-green" style="text-align:center;">Job Details</td>
+                    <td class="lt-green" style="text-align:center;">Available Man Shift</td>
+                    <td class="lt-green" style="text-align:center;">SR(1coil)</td>
+                    <td class="lt-green" style="text-align:center;">SR-Shift</td>
+                    <td class="lt-green" style="text-align:center;">GT(2coil)</td>
+                    <td class="lt-green" style="text-align:center;">GT-Shift</td>
+                    <td class="lt-green" style="text-align:center;">ICT(3COIL)</td>
+                    <td class="lt-green" style="text-align:center;">3ICT-Shift</td>
+                    <td class="lt-green" style="text-align:center;">ICT(4COIL)</td>
+                    <td class="lt-green" style="text-align:center;">4ICT-Shift</td>
+                    <td class="lt-green" style="text-align:center;">Auto(4coil)</td>
+                    <td class="lt-green" style="text-align:center;">Auto-Shift</td>
+                    <td class="lt-blue" style="text-align:center;">Total Shift</td>
+                </tr>
+            </thead>
+            <tbody id="ltBody"></tbody>
+            <tfoot>
+                <tr>
+                    <td class="lt-green" style="text-align:right; font-weight:bold;">Total</td>
+                    <td class="lt-blue" id="lt_foot_avail">0</td>
+                    <td class="lt-total-white" id="lt_foot_base0">0</td>
+                    <td class="readonly-pink" id="lt_foot_shift0">0</td>
+                    <td class="lt-total-white" id="lt_foot_base1">0</td>
+                    <td class="readonly-pink" id="lt_foot_shift1">0</td>
+                    <td class="lt-total-white" id="lt_foot_base2">0</td>
+                    <td class="readonly-pink" id="lt_foot_shift2">0</td>
+                    <td class="lt-total-white" id="lt_foot_base3">0</td>
+                    <td class="readonly-pink" id="lt_foot_shift3">0</td>
+                    <td class="lt-total-white" id="lt_foot_base4">0</td>
+                    <td class="readonly-pink" id="lt_foot_shift4">0</td>
+                    <td class="lt-total-white" id="lt_foot_grand_total">0</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    // FULLY UPDATED SECTIONS H, I, J, K, L TO MATCH NEW FACTORY FLOW
+    const baselineFrameworkSeed = [
+        { 
+            dept: "A", title: "Winding", 
+            blocks: [{ name: "Winding Component Core Lines", rows: [
+                { idx: "1", text: "Pre operation layout check with baseline parameters", hrs: 86, isHeader: true },
+                { idx: "1.1", text: "Former loading and diameter setting", hrs: 6 },
+                { idx: "1.2", text: "Winding cylinder Stabilization", hrs: 16 },
+                { idx: "1.3", text: "Cylinder paste", hrs: 8 },
+                { idx: "1.4", text: "Keyed marking & paste", hrs: 8 },
+                { idx: "1.5", text: "Keyed Block marking & Insert", hrs: 8 },
+                { idx: "1.6", text: "Winding bottom insulation", hrs: 4 },
+                { idx: "1.7", text: "Lead Anchoring Arrangement", hrs: 6 },
+                { idx: "1.8", text: "Disc/turn locking", hrs: 6 },
+                { idx: "1.9", text: "Stress ring fitting", hrs: 4 },
+                { idx: "1.10", text: "DOF Fitting", hrs: 4 },
+                { idx: "1.11", text: "Block alignment", hrs: 8 },
+                { idx: "1.12", text: "Finishing work & unload", hrs: 8 },
+                { idx: "2", text: "Drum loading", hrs: 1, isHeader: true },
+                { idx: "3", text: "Disc manufacturing 1 disc", hrs: 1, isHeader: true },
+                { idx: "4", text: "Helical/Layer manufacturing 1 turn", hrs: 0.5, isHeader: true },
+                { idx: "5", text: "Intershield winding 1 disc", hrs: 1.5, isHeader: true },
+                { idx: "6", text: "Brazing of Conductors at joint", hrs: 0.5, isHeader: true }
+            ]}] 
+        },
+        { 
+            dept: "B", title: "Individual coil process", 
+            blocks: [{ name: "Coil Clamping & Oven Operations", rows: [
+                { idx: "1", text: "Winding Clamping", hrs: 3, isHeader: true },
+                { idx: "2", text: "Winding Height adjustment", hrs: 3, isHeader: true },
+                { idx: "3", text: "Winding process (Oven)", hrs: 48, isHeader: true }
+            ]}] 
+        },
+        {
+            dept: "C", title: "Single Phase Assembly",
+            blocks: [{ name: "Coil Prep & Component Lowering", rows: [
+                { idx: "1", text: "Coil Assembly Preparation", hrs: 28, isHeader: true },
+                { idx: "1.1", text: "Device shifting to Station with channel", hrs: 4 },
+                { idx: "1.2", text: "Verify all material of coil Assembly", hrs: 8 },
+                { idx: "1.3", text: "Bottom Platform arrangement", hrs: 4 },
+                { idx: "1.4", text: "Bottom insulation arrange", hrs: 4 },
+                { idx: "1.5", text: "Top insulation arrange", hrs: 4 },
+                { idx: "1.6", text: "Lead preparation & RLP position", hrs: 4 },
+                { idx: "2", text: "Coil lowering", hrs: 4, isHeader: true },
+                { idx: "3", text: "wrap and strip between coil", hrs: 1.5, isHeader: true },
+                { idx: "4", text: "Angle ring & angle cap & snout fitting", hrs: 1, isHeader: true },
+                { idx: "5", text: "Fibre Optic Sensor Fitting", hrs: 1.5, isHeader: true },
+                { idx: "6", text: "Lead bending and insulation", hrs: 3, isHeader: true }
+            ]}]
+        },
+        {
+            dept: "D", title: "Dummy process",
+            blocks: [{ name: "Dummy Run Benches & VPD Execution", rows: [
+                { idx: "1", text: "Coil stack clamping", hrs: 6, isHeader: true },
+                { idx: "1.1", text: "top insulation check", hrs: 4 },
+                { idx: "1.2", text: "Hand over to CCA checkpoint", hrs: 2 },
+                { idx: "2", text: "Dummy process (VPD)", hrs: 72, isHeader: true }
+            ]}]
+        },
+        {
+            dept: "E", title: "Core building",
+            blocks: [{ name: "Core Stack Infrastructure Layouts", rows: [
+                { idx: "1", text: "Core building preparation", hrs: 17, isHeader: true },
+                { idx: "1.1", text: "bottom base arrangement", hrs: 3 },
+                { idx: "1.2", text: "core bounding and tighten", hrs: 4 },
+                { idx: "1.3", text: "Top arrangement and green belt", hrs: 4 },
+                { idx: "1.4", text: "2 kv test and quality point", hrs: 3 },
+                { idx: "1.5", text: "core lift and shift", hrs: 3 },
+                { idx: "2", text: "Lamination staggering 1 mm", hrs: 0.1, isHeader: true },
+                { idx: "3", text: "Type of limb", hrs: 0.1, isHeader: true }
+            ]}]
+        },
+        {
+            dept: "F", title: "Core Coil Assembly",
+            blocks: [{ name: "Core Coil Assembly Active Systems", rows: [
+                { idx: "1", text: "CCA Setup", hrs: 90, isHeader: true },
+                { idx: "1.1", text: "Bottom coil support (BCS) and DOF fitting", hrs: 4 },
+                { idx: "1.2", text: "insulation fittment over core limb", hrs: 8 },
+                { idx: "1.3", text: "Phase barrier fittment", hrs: 4 },
+                { idx: "1.4", text: "Earthing lead connection of core shield", hrs: 2 },
+                { idx: "1.5", text: "Top yoke filling", hrs: 48 },
+                { idx: "1.6", text: "Top yoke clamping", hrs: 4 },
+                { idx: "1.7", text: "Shunt fitting", hrs: 4 },
+                { idx: "1.8", text: "Tube taping, busbar and flexible fitting", hrs: 4 },
+                { idx: "1.9", text: "Support fitting", hrs: 4 },
+                { idx: "1.10", text: "Preparation for pre-ratio test", hrs: 4 },
+                { idx: "1.11", text: "Sensor FOS running", hrs: 4 }
+            ]}]
+        },
+        {
+            dept: "G", title: "CCA process in vpd",
+            blocks: [{ name: "VPD Execution", rows: [
+                { idx: "1", text: "CCA process", hrs: 120, isHeader: true }
+            ]}]
+        },
+        {
+            dept: "H", title: "Tanking Preparation",
+            blocks: [{ name: "Tanking Preparation Operations", rows: [
+                { idx: "1", text: "Tanking Preparation", hrs: 40, isHeader: true },
+                { idx: "1.1", text: "Tank cleaning", hrs: 4 },
+                { idx: "1.2", text: "OLTC/OTCT matching", hrs: 2 },
+                { idx: "1.3", text: "Curb matching", hrs: 4 },
+                { idx: "1.4", text: "Lead length verification", hrs: 2 },
+                { idx: "1.5", text: "Alignment of tank and active part DOF", hrs: 2 },
+                { idx: "1.6", text: "O-ring preparation & Turret / Tank cover", hrs: 4 },
+                { idx: "1.7", text: "Valve assembly preparation", hrs: 2 },
+                { idx: "1.8", text: "Cover assembly core frame earthing board", hrs: 2 },
+                { idx: "1.9", text: "CT terminal board assembly", hrs: 4 },
+                { idx: "1.10", text: "Turret assembly", hrs: 2 },
+                { idx: "1.11", text: "Barrier fixing on tank wall", hrs: 4 },
+                { idx: "1.12", text: "Thermometer pocket assembly", hrs: 2 },
+                { idx: "1.13", text: "Air release plug assembly", hrs: 2 },
+                { idx: "1.14", text: "Window closing", hrs: 2 },
+                { idx: "1.15", text: "Tank air pressure test", hrs: 2 },
+                { idx: "1.16", text: "Radiator Fitting /Unit cooler", hrs: 2 },
+                { idx: "1.17", text: "Conservator preparation", hrs: 2 },
+                { idx: "1.18", text: "OFI ( oil flow indicator) & pump fitting", hrs: 2 }
+            ]}]
+        },
+        {
+            dept: "I", title: "Repacking & Tanking",
+            blocks: [{ name: "Repacking and Tanking Operations", rows: [
+                { idx: "1", text: "Repacking phase wise", hrs: 7, isHeader: true },
+                { idx: "1.1", text: "Job placement in Climent chamber", hrs: 1 },
+                { idx: "1.2", text: "Frame tightening before pressig", hrs: 1 },
+                { idx: "1.3", text: "Active part pressing", hrs: 1 },
+                { idx: "1.4", text: "Top block locking", hrs: 0.5 },
+                { idx: "1.5", text: "Clear bae / support tightning", hrs: 0.5 },
+                { idx: "1.6", text: "Final frame tightning", hrs: 0.5 },
+                { idx: "1.7", text: "Clearance measurement", hrs: 1 },
+                { idx: "1.8", text: "Sensor handling At Repack", hrs: 1 },
+                { idx: "1.9", text: "Side limb repacking & DOF work", hrs: 0.5 },
+                { idx: "1.10", text: "top block locking", hrs: 1 },
+                { idx: "1.11", text: "finishing work - balance gate review point", hrs: 1 },
+                { idx: "1.12", text: "Check point - sensor ,isolation,2kv,current and magnatic balance", hrs: 2 },
+                { idx: "2", text: "CCA job put in tank", hrs: 16, isHeader: true },
+                { idx: "2.1", text: "Top and bottom tank fitting dry air purge", hrs: 2 },
+                { idx: "2.2", text: "isolation check", hrs: 1 },
+                { idx: "2.3", text: "Bushing assembly TV,LV and HV", hrs: 4 },
+                { idx: "2.4", text: "OLTC matching and diverter fitting ,CFT connection", hrs: 4 },
+                { idx: "2.5", text: "All window close and pressure test ( one hrs) ,dry air", hrs: 3 },
+                { idx: "2.6", text: "final isolation check", hrs: 2 },
+                { idx: "3", text: "Vacuum Process", hrs: 24, isHeader: true },
+                { idx: "3.1", text: "Under vacuum oil filling & oil top up (oil parameter check-befpre oil filling)", hrs: 4 },
+                { idx: "3.2", text: "HOC ( Hot oil circulation) (after oil parameter achived HOC stop", hrs: 4 },
+                { idx: "3.3", text: "Settling time (OLTC syconcsing )", hrs: 4 },
+                { idx: "3.4", text: "Balance assesries work (breather)", hrs: 4 },
+                { idx: "3.5", text: "RFT prepration", hrs: 4 },
+                { idx: "3.6", text: "Jacking test", hrs: 3 },
+                { idx: "3.7", text: "Oil pressure test of job", hrs: 1 },
+                { idx: "4", text: "Job shifting to test lab & testing", hrs: 6, isHeader: true },
+                { idx: "4.1", text: "FAT Preparation", hrs: 3 },
+                { idx: "4.2", text: "PI measurement test", hrs: 2 },
+                { idx: "4.3", text: "LV test", hrs: 1 }
+            ]}]
+        },
+        {
+            dept: "J", title: "Testing-FAT",
+            blocks: [{ name: "Testing Operations", rows: [
+                { idx: "1", text: "Testing", hrs: 2, isHeader: true },
+                { idx: "1.1", text: "routine test", hrs: 1 },
+                { idx: "1.2", text: "SFRA Test with oil", hrs: 1 }
+            ]}]
+        },
+        {
+            dept: "K", title: "Dismantling",
+            blocks: [{ name: "Final Dismantling Activity", rows: [
+                { idx: "1", text: "Dismantling", hrs: 24, isHeader: true },
+                { idx: "1.1", text: "oil draining (SFRA test with out oil)", hrs: 4 },
+                { idx: "1.2", text: "all Asserise dismantling, (bushing)", hrs: 4 },
+                { idx: "1.3", text: "Asseries packing", hrs: 16 },
+                { idx: "2", text: "Vacuum start", hrs: 24, isHeader: true },
+                { idx: "2.1", text: "dry air filling (setling for 24 hrs)", hrs: 24 },
+                { idx: "3", text: "dew point", hrs: 1, isHeader: true },
+                { idx: "4", text: "Final job clearance (DFT and dew point check)", hrs: 2, isHeader: true }
+            ]}]
+        },
+        {
+            dept: "L", title: "Dispatch",
+            blocks: [{ name: "Packing (shipping list verification)", rows: [
+                { idx: "1", text: "Dispatch", hrs: 14, isHeader: true },
+                { idx: "1.1", text: "Job load on tailer", hrs: 4 },
+                { idx: "1.2", text: "Impact recader check", hrs: 2 },
+                { idx: "1.3", text: "Assesries load in tailer", hrs: 8 },
+                { idx: "2", text: "Material Packing", hrs: 8, isHeader: true }
+            ]}]
+        }
+    ];
+
+    function generateSmartWindingVarietyBase() {
+        return [
+            { idx: "1", text: "Pre operation layout check with baseline parameters", hrs: 0, freq: 1, man: 2, remark: "", isDropdown: false },
+            { idx: "2", text: "Drum loading", hrs: 0, freq: 1, man: 2, remark: "", isDropdown: false },
+            { idx: "3", text: "", hrs: 0, freq: 1, man: 2, remark: "", isDropdown: true, selectedOpt: "" },
+            { idx: "4", text: "", hrs: 0, freq: 1, man: 2, remark: "", isDropdown: true, selectedOpt: "" },
+            { idx: "5", text: "", hrs: 0, freq: 1, man: 2, remark: "", isDropdown: true, selectedOpt: "" }
+        ];
+    }
+
+    const initialMfgData = [
+        { qty: 10, desc: "Vertical machine", shift: 3, tech: 1, helper: 0.5 },
+        { qty: 3, desc: "Horizontal machine", shift: 3, tech: 1, helper: 1 },
+        { qty: 1, desc: "Material arrange", shift: 2, tech: 1, helper: 1 },
+        { qty: 3, desc: "Coil assembly", shift: 3, tech: 1, helper: 1 },
+        { qty: 2, desc: "Oven", shift: 3, tech: 1, helper: 0.5 },
+        { qty: 3, desc: "Core Building", shift: 3, tech: 5, helper: 2 },
+        { qty: 1, desc: "Core coil Assembly", shift: 3, tech: 4, helper: 1 },
+        { qty: 1, desc: "Material arrange", shift: 2, tech: 1, helper: 1 },
+        { qty: 2, desc: "VPD", shift: 3, tech: 1, helper: 0.5 },
+        { qty: 1, desc: "Repacking", shift: 2, tech: 5, helper: 2 },
+        { qty: 3, desc: "Tanking", shift: 3, tech: 3, helper: 2 },
+        { qty: 1, desc: "Material arrange", shift: 2, tech: 1, helper: 2 },
+        { qty: 2, desc: "Dismentaling", shift: 2, tech: 1, helper: 1 },
+        { qty: 2, desc: "Dispatch", shift: 2, tech: 2, helper: 3 }
+    ];
+
+    const initialLeadTimeData = {
+        quantities: [2, 0, 0, 0, 9],
+        rows: [
+            { dept: "Winding", avail: 1608, bases: [50, 0, 0, 0, 171.5] },
+            { dept: "Individual coil Process", avail: 108, bases: [19.5, 0, 0, 0, 175.5] },
+            { dept: "Single Phase Assembly", avail: 432, bases: [58.88, 0, 0, 0, 58.88] },
+            { dept: "Dummy process", avail: 108, bases: [22.5, 0, 0, 0, 22.5] },
+            { dept: "Core building", avail: 1512, bases: [58.75, 0, 0, 0, 58.75] },
+            { dept: "Core Coil Assembly", avail: 456, bases: [54, 0, 0, 0, 54] },
+            { dept: "VPD process", avail: 216, bases: [30, 0, 0, 0, 30] },
+            { dept: "Tank Preprataion", avail: 1224, bases: [99, 0, 0, 0, 99] },
+            { dept: "Repacking Tanking", avail: 336, bases: [21, 0, 0, 0, 21] },
+            { dept: "Testing", avail: 0, bases: [0, 0, 0, 0, 0] },
+            { dept: "Dismentaling", avail: 192, bases: [60, 0, 0, 0, 39] },
+            { dept: "Dispatch", avail: 480, bases: [0, 0, 0, 0, 21] },
+            { dept: "Other", avail: 0, bases: [0, 0, 0, 0, 0] }
+        ]
+    };
+
+    let db = JSON.parse(localStorage.getItem('v23_p1_db')) || JSON.parse(JSON.stringify(baselineFrameworkSeed));
+    let mfgData = JSON.parse(localStorage.getItem('v23_mfg_db')) || initialMfgData;
+    let dashSettings = JSON.parse(localStorage.getItem('v23_dash_settings')) || { shift: 3, hrs: 8 };
+    let leadTimeData = JSON.parse(localStorage.getItem('v23_lead_time_db')) || initialLeadTimeData;
+
+    let initialVarietyProfiles = {
+        "1. Reactor Transformer (HV MAIN)": { jobNo: "JOB-765R", customer: "POWERGRID CORP", mva: "110 MVAR", kv: "765 KV", sections: [{ title: "HV MAIN", rows: generateSmartWindingVarietyBase() }] },
+        "2. ICT TRANSFORMER (LV+HV+TAP)": { jobNo: "JOB-400I", customer: "NTPC LIMITED", mva: "315 MVA", kv: "400 KV", sections: [{ title: "LV SECTION", rows: generateSmartWindingVarietyBase() }, { title: "HV SECTION", rows: generateSmartWindingVarietyBase() }, { title: "TAP SECTION", rows: generateSmartWindingVarietyBase() }] },
+        "3. GT TRANSFORMER (LV+ HV)": { jobNo: "JOB-500G", customer: "STATE ELEC BOARD", mva: "600 MVA", kv: "420 KV", sections: [{ title: "LV CONFIGURATION", rows: generateSmartWindingVarietyBase() }, { title: "HV CONFIGURATION", rows: generateSmartWindingVarietyBase() }] },
+        "4. ICT TRANSFORMER (LV+REG+COM+SERIES)": { jobNo: "JOB-400R", customer: "ADANI POWER", mva: "500 MVA", kv: "400 KV", sections: [{ title: "LV COIL SYSTEM", rows: generateSmartWindingVarietyBase() }, { title: "REG WINDING", rows: generateSmartWindingVarietyBase() }, { title: "COMMON WINDING", rows: generateSmartWindingVarietyBase() }, { title: "SERIES COIL", rows: generateSmartWindingVarietyBase() }] },
+        "5. AUTO TRANSFORMER (TER+REG+ COM+ SERIES)": { jobNo: "JOB-765A", customer: "RENEW POWER", mva: "1500 MVA", kv: "765 KV", sections: [{ title: "TER SEC", rows: generateSmartWindingVarietyBase() }, { title: "REG SEC", rows: generateSmartWindingVarietyBase() }, { title: "COMMON SEC", rows: generateSmartWindingVarietyBase() }, { title: "SERIES SEC", rows: generateSmartWindingVarietyBase() }] }
+    };
+
+    let varietyProfiles = JSON.parse(localStorage.getItem('v23_variety_profiles')) || initialVarietyProfiles;
+    let activeProfileName = localStorage.getItem('v23_active_profile_key') || Object.keys(varietyProfiles)[0];
+
+    window.page3VolatileStateMap = JSON.parse(localStorage.getItem(`v23_volatile_state_${activeProfileName}`)) || {};
+
+    if (!varietyProfiles[activeProfileName]) {
+        varietyProfiles = initialVarietyProfiles;
+        activeProfileName = Object.keys(varietyProfiles)[0];
+    }
+
+    function getLiveHoursByTextFromPage1(descriptionText) {
+        if (!descriptionText) return 0;
+        let cleanText = String(descriptionText).trim().toLowerCase();
+        for (let section of db) {
+            for (let block of section.blocks) {
+                let matchedRow = block.rows.find(r => r.text.trim().toLowerCase() === cleanText);
+                if (matchedRow) {
+                    return parseFloat(matchedRow.hrs) || 0;
+                }
+            }
+        }
+        return 0;
+    }
+
+    function getCommonBottomSections() {
+        let sectionsList = [];
+        db.forEach(sec => {
+            if (sec.dept !== "A" && sec.dept !== "A1") { 
+                let secRows = [];
+                sec.blocks.forEach(blk => {
+                    blk.rows.forEach(r => {
+                        if (r.isHeader) {
+                            secRows.push({ idx: r.idx, text: r.text, hrs: r.hrs, freq: 1, man: 2, remark: "", isDropdown: false, deptRef: sec.dept });
+                        }
+                    });
+                });
+                sectionsList.push({ title: sec.title, rows: secRows, isCommon: true });
+            }
+        });
+        return sectionsList;
+    }
+
+    function computePage1Totals() {
+        db.forEach(sec => {
+            sec.blocks.forEach(blk => {
+                let currentHeaderRow = null, subSum = 0;
+                blk.rows.forEach(row => {
+                    if (row.isHeader) {
+                        if (currentHeaderRow && subSum > 0) currentHeaderRow.hrs = subSum;
+                        currentHeaderRow = row;
+                        subSum = 0;
+                    } else {
+                        subSum += parseFloat(row.hrs) || 0;
+                    }
+                });
+                if (currentHeaderRow && subSum > 0) currentHeaderRow.hrs = subSum;
+            });
+        });
+    }
+
+    function runMasterSyncChain() {
+        db.sort((a, b) => a.dept.localeCompare(b.dept));
+
+        document.getElementById('p3WorkingShift').value = dashSettings.shift;
+        document.getElementById('p3ShiftHrs').value = dashSettings.hrs;
+        computePage1Totals();
+        localStorage.setItem('v23_p1_db', JSON.stringify(db));
+        localStorage.setItem('v23_variety_profiles', JSON.stringify(varietyProfiles));
+        localStorage.setItem('v23_active_profile_key', activeProfileName);
+        localStorage.setItem('v23_mfg_db', JSON.stringify(mfgData));
+        localStorage.setItem('v23_lead_time_db', JSON.stringify(leadTimeData));
+        
+        renderPage1();
+        populateVarietyDropdown();
+        renderPage3Grid();
+        renderMfgPage();
+        renderLeadTimePage();
+    }
+    
+    function saveGlobalSettings() {
+        dashSettings.shift = parseFloat(document.getElementById('p3WorkingShift').value) || 1;
+        dashSettings.hrs = parseFloat(document.getElementById('p3ShiftHrs').value) || 8;
+        localStorage.setItem('v23_dash_settings', JSON.stringify(dashSettings));
+    }
+
+    function promptAddNewGlobalSection() {
+        let code = prompt("Enter Section unique reference letter (A, B, C...):"); if(!code) return;
+        let title = prompt("Enter Section Heading Description:"); if(!title) return;
+        db.push({
+            dept: code.toUpperCase().trim(), title: title.trim(),
+            blocks: [{ name: `${title.trim()} Operations Baseline`, rows: [ { idx: "1", text: "Initial Setup Parameters", hrs: 10, isHeader: true } ] }]
+        });
+        runMasterSyncChain();
+    }
+
+    function deleteSection(index) {
+        if(confirm("Are you sure you want to completely remove this Section?")) {
+            db.splice(index, 1);
+            runMasterSyncChain();
+        }
+    }
+
+    function promptAddSubActivity(dIdx, bIdx, rIdx) {
+        let parentRow = db[dIdx].blocks[bIdx].rows[rIdx];
+        let insertPos = rIdx + 1;
+        let subCount = 1; 
+        while(insertPos < db[dIdx].blocks[bIdx].rows.length && !db[dIdx].blocks[bIdx].rows[insertPos].isHeader) {
+            insertPos++;
+            subCount++;
+        }
+        db[dIdx].blocks[bIdx].rows.splice(insertPos, 0, { idx: parentRow.idx + "." + subCount, text: "", hrs: 0, isHeader: false });
+        runMasterSyncChain();
+    }
+
+    function renderPage1() {
+        const container = document.getElementById('tableContainer'); if(!container) return;
+        container.innerHTML = '';
+        db.forEach((d, deptIdx) => {
+            let html = `<div style="display:flex; align-items:center; gap:10px; margin: 12px 0 4px 0; width: 100%;">
+                <span style="color:#fff; font-size:13px; font-weight:bold;">Section Workset </span>
+                <input type="text" value="${d.dept}" style="width:30px; text-align:center; background:transparent; border:none; border-bottom:1px dashed #fff; color:#fff; font-weight:bold; font-size:13px;" onchange="db[${deptIdx}].dept=this.value; runMasterSyncChain();">
+                <span style="color:#fff; font-size:13px; font-weight:bold;">:</span>
+                <input type="text" class="p1-header-input-field" value="${d.title}" oninput="db[${deptIdx}].title=this.value;" onchange="runMasterSyncChain();">
+                <button class="btn-sub-add-inline" style="background:#27ae60; padding:4px 10px;" onclick="toggleFormLayout('sec_add_${deptIdx}')">+ Add Activity Row Option</button>
+                <button class="btn-sub-add-inline" style="background:#e74c3c; padding:4px 10px; margin-left: auto;" onclick="deleteSection(${deptIdx})">❌ Remove Section</button>
+            </div>`;
+            
+            html += `<table>
+                <colgroup>
+                    <col style="width: 55px;">
+                    <col style="width: 25px;">
+                    <col style="width: 60%;">
+                    <col style="width: 25px;">
+                    <col style="width: 90px;">
+                    <col style="width: 120px;">
+                </colgroup>
+                <tbody><tr class="row-sub-act" id="form_p1_sec_add_${deptIdx}" style="background:#1a252f; display:none;">
+                <td colspan="6" style="text-align:left; padding:8px; border: 2px solid #27ae60;">
+                    <strong style="color:white; font-size:12px; margin-right:10px;">Configure Row Item Type:</strong>
+                    <select id="insType_global_${deptIdx}" style="width:180px; display:inline-block; margin-right:10px;">
+                        <option value="MAIN">Main Activity (Header)</option>
+                        <option value="SUB">Sub Activity Row</option>
+                    </select>
+                    <input type="text" class="input-inline-bottom" placeholder="SNo." id="insIdx_global_${deptIdx}" style="width:80px; text-align:center;">
+                    <input type="text" class="input-inline-bottom" placeholder="Description..." id="insText_global_${deptIdx}" style="width:280px;">
+                    <input type="number" class="input-inline-bottom" placeholder="Hours" id="insHrs_global_${deptIdx}" style="width:70px; text-align:center;">
+                    <button class="btn-sub-add-inline" style="background:#27ae60; padding:4px 12px;" onclick="submitPage1GlobalFormLine(${deptIdx})">Insert</button>
+                </td>
+            </tr>`;
+
+            d.blocks.forEach((b, bIdx) => {
+                html += `<tr class="row-header-dept">
+                    <td class="col-idx" style="text-align:center;"><input type="text" value="${d.dept}" style="width:100%; text-align:center; background:transparent; border:none; font-weight:bold; color:black;" onchange="db[${deptIdx}].dept=this.value; runMasterSyncChain();"></td>
+                    <td class="col-spacer">..</td>
+                    <td colspan="2"><input type="text" value="${b.name}" style="width:100%; background:transparent; border:none; font-weight:bold; color:black;" oninput="db[${deptIdx}].blocks[${bIdx}].name=this.value;" onchange="runMasterSyncChain();"></td>
+                    <td style="text-align:center;">BASE HRS</td><td></td>
+                </tr>`;
+
+                b.rows.forEach((r, rIdx) => {
+                    if (r.isHeader) {
+                        html += `<tr class="row-main-act">
+                            <td class="center-text"><input type="text" value="${r.idx}" style="text-align:center; font-weight:bold; color:black; width:100%;" oninput="db[${deptIdx}].blocks[${bIdx}].rows[${rIdx}].idx=this.value;" onchange="runMasterSyncChain();"></td>
+                            <td class="col-spacer">..</td>
+                            <td><textarea oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'; db[${deptIdx}].blocks[${bIdx}].rows[${rIdx}].text=this.value;" onchange="runMasterSyncChain();" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${r.text}</textarea></td>
+                            <td class="col-spacer">..</td>
+                            <td><input type="number" value="${r.hrs}" style="text-align:center; font-weight:bold; color:#1a5276; width:100%;" onchange="db[${deptIdx}].blocks[${bIdx}].rows[${rIdx}].hrs=parseFloat(this.value)||0; runMasterSyncChain();"></td>
+                            <td style="text-align:center; white-space:nowrap;">
+                                <button class="btn-sub-add-inline" style="background:#f39c12; margin-right:4px;" onclick="promptAddSubActivity(${deptIdx}, ${bIdx}, ${rIdx})">+ Sub</button>
+                                <button class="delete-btn" style="display:inline-block; width:auto; vertical-align:middle;" onclick="db[${deptIdx}].blocks[${bIdx}].rows.splice(${rIdx},1); runMasterSyncChain();">×</button>
+                            </td>
+                        </tr>`;
+                    } else {
+                        html += `<tr class="row-sub-act">
+                            <td class="center-text"><input type="text" value="${r.idx}" style="text-align:center; font-weight:bold; width:100%;" oninput="db[${deptIdx}].blocks[${bIdx}].rows[${rIdx}].idx=this.value;" onchange="runMasterSyncChain();"></td><td class="col-spacer">..</td>
+                            <td><textarea oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'; db[${deptIdx}].blocks[${bIdx}].rows[${rIdx}].text=this.value;" onchange="runMasterSyncChain();" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${r.text}</textarea></td><td class="col-spacer">..</td>
+                            <td><input type="number" value="${r.hrs}" style="text-align:center; width:100%;" onchange="db[${deptIdx}].blocks[${bIdx}].rows[${rIdx}].hrs=parseFloat(this.value)||0; runMasterSyncChain();"></td>
+                            <td><button class="delete-btn" onclick="db[${deptIdx}].blocks[${bIdx}].rows.splice(${rIdx},1); runMasterSyncChain();">×</button></td>
+                        </tr>`;
+                    }
+                });
+            });
+            html += `</tbody></table>`; container.innerHTML += html;
+        });
+    }
+
+    function toggleFormLayout(key) {
+        let el = document.getElementById(`form_p1_${key}`);
+        if(el) el.style.display = (el.style.display === 'none') ? 'table-row' : 'none';
+    }
+
+    function submitPage1GlobalFormLine(dIdx) {
+        const type = document.getElementById(`insType_global_${dIdx}`).value;
+        const idxVal = document.getElementById(`insIdx_global_${dIdx}`).value || "1";
+        const textVal = document.getElementById(`insText_global_${dIdx}`).value || "Custom Item";
+        const hrsVal = parseFloat(document.getElementById(`insHrs_global_${dIdx}`).value) || 0;
+        db[dIdx].blocks[0].rows.push({ idx: idxVal, text: textVal, hrs: hrsVal, isHeader: (type === "MAIN") });
+        runMasterSyncChain();
+    }
+
+    function populateVarietyDropdown() {
+        const dropdown = document.getElementById('varietyDropdown'); if(!dropdown) return; dropdown.innerHTML = '';
+        Object.keys(varietyProfiles).forEach(name => {
+            let op = document.createElement('option'); op.value = name; op.textContent = name;
+            if(name === activeProfileName) op.selected = true;
+            dropdown.appendChild(op);
+        });
+        const active = varietyProfiles[activeProfileName];
+        if(active) {
+            document.getElementById('p3DynamicTitle').textContent = `${activeProfileName} Operational Matrix`;
+            document.getElementById('p3JobNo').value = active.jobNo || '';
+            document.getElementById('p3Customer').value = active.customer || '';
+            document.getElementById('p3Mva').value = active.mva || '';
+            document.getElementById('p3Kv').value = active.kv || '';
+        }
+    }
+
+    function renderPage3Grid() {
+        const body = document.getElementById('p3DashMasterBody'); if(!body) return; body.innerHTML = '';
+        const currentProfile = varietyProfiles[activeProfileName]; if(!currentProfile) return;
+        
+        let combinedSections = [...currentProfile.sections, ...getCommonBottomSections()];
+        let localGlobalRowCounter = 0;
+
+        combinedSections.forEach((section, secIdx) => {
+            const isCustom = secIdx < currentProfile.sections.length;
+            
+            body.innerHTML += `<tr class="row-header-dept">
+                <td colspan="4" style="color:black; font-weight:bold;">
+                    ${isCustom ? 
+                        `<input type="text" class="editable-section-title" value="${section.title}" onchange="varietyProfiles['${activeProfileName}'].sections[${secIdx}].title=this.value; localStorage.setItem('v23_variety_profiles', JSON.stringify(varietyProfiles));">`
+                        : `<span>${section.title}</span>`
+                    }
+                </td>
+                <td class="readonly-pink" id="p3_sec_${secIdx}_shift" style="font-weight:900;">0.00</td>
+                <td class="readonly-pink" id="p3_sec_${secIdx}_man" style="font-weight:900;">0</td>
+                <td class="readonly-pink" id="p3_sec_${secIdx}_manshift" style="font-weight:900;">0.00</td>
+                <td class="readonly-pink" id="p3_sec_${secIdx}_days" style="font-weight:900; color:#c0392b;">0.00</td>
+                <td></td>
+            </tr>`;
+
+            section.rows.forEach((item, rIdx) => {
+                let uniqueRowId = `p3_row_${localGlobalRowCounter}`;
+                let currentFreq = item.freq !== undefined ? item.freq : 1;
+                let currentMan = item.man !== undefined ? item.man : 2;
+                let currentRemark = item.remark !== undefined ? item.remark : "";
+                
+                let targetHrs = getLiveHoursByTextFromPage1(item.text);
+                
+                let safeKey = encodeURIComponent(item.text || "").replace(/'/g, "%27");
+
+                if(!isCustom) {
+                    const fKey = `freq_${safeKey}`; 
+                    const mKey = `man_${safeKey}`;
+                    const rKey = `remark_${safeKey}`;
+                    
+                    if(window.page3VolatileStateMap[fKey] !== undefined) currentFreq = window.page3VolatileStateMap[fKey];
+                    if(window.page3VolatileStateMap[mKey] !== undefined) currentMan = window.page3VolatileStateMap[mKey];
+                    if(window.page3VolatileStateMap[rKey] !== undefined) currentRemark = window.page3VolatileStateMap[rKey];
+                }
+
+                let descMarkup = "";
+                
+                if(isCustom && item.isDropdown) {
+                    let dynamicOptions = [];
+                    let windingSec = db.find(d => d.dept === "A");
+                    if(windingSec) {
+                        windingSec.blocks.forEach(blk => {
+                            blk.rows.forEach(r => {
+                                let rowNum = parseInt(r.idx);
+                                if (r.isHeader && (isNaN(rowNum) || rowNum >= 3)) {
+                                    dynamicOptions.push(r.text);
+                                }
+                            });
+                        });
+                    }
+
+                    descMarkup = `<select id="${uniqueRowId}_select_opt" onchange="handleRowDropdownSelection(${secIdx}, ${rIdx}, this.value, ${localGlobalRowCounter})" style="width:100%; border:none; padding:2px; font-weight:bold; cursor:pointer; background: transparent;">`;
+                    descMarkup += `<option value="" disabled ${!item.selectedOpt ? "selected" : ""}>-- Select Winding Activity --</option>`;
+                    
+                    dynamicOptions.forEach(optText => {
+                        let isSelected = (item.selectedOpt === optText) ? "selected" : "";
+                        descMarkup += `<option value="${optText}" ${isSelected}>${optText}</option>`;
+                    });
+                    
+                    descMarkup += `</select>`;
+                } else if(isCustom) {
+                    descMarkup = `<textarea oninput="varietyProfiles['${activeProfileName}'].sections[${secIdx}].rows[${rIdx}].text=this.value; localStorage.setItem('v23_variety_profiles', JSON.stringify(varietyProfiles));">${item.text}</textarea>`;
+                } else {
+                    descMarkup = `<div style="font-weight:bold; line-height:1.2;">${item.text}</div>`;
+                }
+
+                body.innerHTML += `<tr class="row-main-act">
+                    <td class="center-text">${item.idx}</td>
+                    <td class="${isCustom ? 'editable-cell-dash' : ''}">${descMarkup}</td>
+                    <td class="readonly-pink"><span id="${uniqueRowId}_hrs_display">${targetHrs}</span></td>
+                    <td class="editable-cell-dash">
+                        <input type="number" id="${uniqueRowId}_input_freq" value="${currentFreq}" oninput="updatePage3CalculatedState(${isCustom}, ${secIdx}, ${rIdx}, 'freq', this.value, '${safeKey}')">
+                    </td>
+                    <td class="readonly-pink" id="${uniqueRowId}_shift">0.00</td>
+                    <td class="editable-cell-dash">
+                        <input type="number" id="${uniqueRowId}_input_man" value="${currentMan}" oninput="updatePage3CalculatedState(${isCustom}, ${secIdx}, ${rIdx}, 'man', this.value, '${safeKey}')">
+                    </td>
+                    <td class="readonly-pink" id="${uniqueRowId}_manshift">0.00</td>
+                    <td class="readonly-pink" style="font-weight:bold; color:#c0392b;" id="${uniqueRowId}_days">0.00</td>
+                    <td class="editable-cell-dash"><input type="text" value="${currentRemark}" placeholder="Remarks..." style="color:black; font-size:12px; width:100%; background:transparent; border:none;" onchange="updatePage3CalculatedState(${isCustom}, ${secIdx}, ${rIdx}, 'remark', this.value, '${safeKey}')"></td>
+                </tr>`;
+                localGlobalRowCounter++;
+            });
+        });
+        calculateOperationalMetrics(3);
+    }
+
+    function handleRowDropdownSelection(secIdx, rIdx, selectedValue, absoluteRowId) {
+        let profile = varietyProfiles[activeProfileName];
+        let targetRow = profile.sections[secIdx].rows[rIdx];
+        
+        targetRow.selectedOpt = selectedValue;
+        targetRow.text = selectedValue; 
+        
+        localStorage.setItem('v23_variety_profiles', JSON.stringify(varietyProfiles));
+        calculateOperationalMetrics(3);
+    }
+
+    function updatePage3CalculatedState(isCustom, secIdx, rIdx, propertyName, targetValue, safeKey) {
+        let finalVal = targetValue;
+        if(propertyName !== 'remark') {
+            finalVal = parseFloat(targetValue) || 0;
+        }
+
+        if(isCustom) {
+            varietyProfiles[activeProfileName].sections[secIdx].rows[rIdx][propertyName] = finalVal;
+            localStorage.setItem('v23_variety_profiles', JSON.stringify(varietyProfiles));
+        } else {
+            const tempMapKey = `${propertyName}_${safeKey}`;
+            window.page3VolatileStateMap[tempMapKey] = finalVal;
+            localStorage.setItem(`v23_volatile_state_${activeProfileName}`, JSON.stringify(window.page3VolatileStateMap));
+        }
+        calculateOperationalMetrics(3);
+    }
+
+    function saveVarietyMetaState() {
+        if(varietyProfiles[activeProfileName]) {
+            varietyProfiles[activeProfileName].jobNo = document.getElementById('p3JobNo').value;
+            varietyProfiles[activeProfileName].customer = document.getElementById('p3Customer').value;
+            varietyProfiles[activeProfileName].mva = document.getElementById('p3Mva').value;
+            varietyProfiles[activeProfileName].kv = document.getElementById('p3Kv').value;
+            localStorage.setItem('v23_variety_profiles', JSON.stringify(varietyProfiles));
+        }
+    }
+
+    function renameVarietyProfile() {
+        let newName = prompt("Enter new name for profile:", activeProfileName);
+        if(newName && newName.trim() !== "" && newName !== activeProfileName) {
+            if(varietyProfiles[newName]) {
+                alert("A profile with this name already exists!");
+                return;
+            }
+            
+            varietyProfiles[newName] = varietyProfiles[activeProfileName];
+            delete varietyProfiles[activeProfileName];
+
+            let oldVolatile = localStorage.getItem(`v23_volatile_state_${activeProfileName}`);
+            if(oldVolatile) {
+                localStorage.setItem(`v23_volatile_state_${newName}`, oldVolatile);
+                localStorage.removeItem(`v23_volatile_state_${activeProfileName}`);
+            }
+
+            activeProfileName = newName;
+            runMasterSyncChain();
+        }
+    }
+
+    function switchVarietyProfile() {
+        activeProfileName = document.getElementById('varietyDropdown').value;
+        localStorage.setItem('v23_active_profile_key', activeProfileName);
+        window.page3VolatileStateMap = JSON.parse(localStorage.getItem(`v23_volatile_state_${activeProfileName}`)) || {};
+        populateVarietyDropdown(); 
+        renderPage3Grid();
+    }
+
+    function createVarietyProfile() {
+        const input = document.getElementById('newVarietyInput'); const name = input.value.trim(); if(!name) return;
+        varietyProfiles[name] = { jobNo: "", customer: "", mva: "", kv: "", sections: [{ title: "NEW WINDING VARIANT", rows: generateSmartWindingVarietyBase() }] };
+        activeProfileName = name; runMasterSyncChain(); input.value = '';
+    }
+
+    function deleteVarietyProfile() {
+        if(Object.keys(varietyProfiles).length <= 1) return;
+        if(confirm(`Confirm deletion of profile: "${activeProfileName}"?`)) {
+            localStorage.removeItem(`v23_volatile_state_${activeProfileName}`);
+            delete varietyProfiles[activeProfileName]; 
+            activeProfileName = Object.keys(varietyProfiles)[0]; 
+            runMasterSyncChain();
+        }
+    }
+
+    function addMfgRow() {
+        mfgData.push({ qty: 1, desc: "New Process / Activity", shift: 1, tech: 1, helper: 0 });
+        localStorage.setItem('v23_mfg_db', JSON.stringify(mfgData));
+        renderMfgPage();
+    }
+
+    function deleteMfgRow(index) {
+        if(confirm("Delete this manufacturing row?")) {
+            mfgData.splice(index, 1);
+            localStorage.setItem('v23_mfg_db', JSON.stringify(mfgData));
+            renderMfgPage();
+        }
+    }
+
+    function renderMfgPage() {
+        const body = document.getElementById('mfgDashBody'); if(!body) return; body.innerHTML = '';
+        let grandTotal = 0;
+        mfgData.forEach((row, i) => {
+            let rowTotal = row.qty * row.shift * (parseFloat(row.tech) + parseFloat(row.helper));
+            let rowMonthly = rowTotal * 24; grandTotal += rowTotal;
+            
+            body.innerHTML += `<tr class="row-sub-act">
+                <td class="editable-cell-dash"><input type="number" value="${row.qty}" oninput="updateMfg(${i}, 'qty', this.value)"></td>
+                <td class="editable-cell-dash"><input type="text" value="${row.desc}" style="font-weight:bold; width:100%; border:none; background:transparent;" oninput="updateMfg(${i}, 'desc', this.value)"></td>
+                <td class="editable-cell-dash"><input type="number" value="${row.shift}" oninput="updateMfg(${i}, 'shift', this.value)"></td>
+                <td class="editable-cell-dash"><input type="number" step="0.1" value="${row.tech}" oninput="updateMfg(${i}, 'tech', this.value)"></td>
+                <td class="editable-cell-dash"><input type="number" step="0.1" value="${row.helper}" oninput="updateMfg(${i}, 'helper', this.value)"></td>
+                <td class="readonly-pink" id="mfg_total_${i}">${rowTotal.toFixed(0)}</td>
+                <td class="readonly-pink" id="mfg_monthly_${i}">${rowMonthly.toFixed(0)}</td>
+                <td><button class="delete-btn" onclick="deleteMfgRow(${i})">×</button></td>
+            </tr>`;
+        });
+        document.getElementById('mfgGrandTotal').textContent = grandTotal.toFixed(0);
+        let grandMonthly = grandTotal * 24;
+        document.getElementById('mfgGrandMonthly').textContent = grandMonthly.toFixed(0);
+        document.getElementById('mfgGrandYearly').textContent = (grandMonthly * 12).toLocaleString();
+    }
+
+    function updateMfg(index, key, val) {
+        mfgData[index][key] = (key === 'desc') ? val : parseFloat(val) || 0;
+        localStorage.setItem('v23_mfg_db', JSON.stringify(mfgData));
+        
+        if (key !== 'desc') {
+            let row = mfgData[index];
+            let rowTotal = row.qty * row.shift * (parseFloat(row.tech) + parseFloat(row.helper));
+            let rowMonthly = rowTotal * 24;
+            
+            let tEl = document.getElementById(`mfg_total_${index}`);
+            let mEl = document.getElementById(`mfg_monthly_${index}`);
+            if(tEl) tEl.textContent = rowTotal.toFixed(0);
+            if(mEl) mEl.textContent = rowMonthly.toFixed(0);
+            
+            let grandTotal = 0;
+            mfgData.forEach(r => {
+                grandTotal += r.qty * r.shift * (parseFloat(r.tech) + parseFloat(r.helper));
+            });
+            document.getElementById('mfgGrandTotal').textContent = grandTotal.toFixed(0);
+            let grandMonthly = grandTotal * 24;
+            document.getElementById('mfgGrandMonthly').textContent = grandMonthly.toFixed(0);
+            document.getElementById('mfgGrandYearly').textContent = (grandMonthly * 12).toLocaleString();
+        }
+    }
+
+    function calculateOperationalMetrics(pageNum) {
+        const workingShift = parseFloat(document.getElementById('p3WorkingShift').value) || 1;
+        const shiftHrs = parseFloat(document.getElementById('p3ShiftHrs').value) || 8;
+        let totalShifts = 0, totalMan = 0, totalDays = 0, totalManShifts = 0;
+
+        const currentProfile = varietyProfiles[activeProfileName];
+        if(currentProfile) {
+            let combinedSections = [...currentProfile.sections, ...getCommonBottomSections()];
+            let localRowCounter = 0; 
+            
+            combinedSections.forEach((section, secIdx) => {
+                const isCustom = secIdx < currentProfile.sections.length;
+                
+                let secShift = 0, secMan = 0, secManShift = 0, secDays = 0;
+
+                section.rows.forEach((item, rIdx) => {
+                    let currentFreq = item.freq !== undefined ? item.freq : 1;
+                    let currentMan = item.man !== undefined ? item.man : 2;
+                    let safeKey = encodeURIComponent(item.text || "").replace(/'/g, "%27");
+                    
+                    if(!isCustom) {
+                        const fKey = `freq_${safeKey}`; 
+                        const mKey = `man_${safeKey}`;
+                        if(window.page3VolatileStateMap[fKey] !== undefined) currentFreq = window.page3VolatileStateMap[fKey];
+                        if(window.page3VolatileStateMap[mKey] !== undefined) currentMan = window.page3VolatileStateMap[mKey];
+                    }
+
+                    let targetHrs = getLiveHoursByTextFromPage1(item.text);
+
+                    const totalHoursCalculated = targetHrs * currentFreq;
+                    const rowShiftsNeeded = totalHoursCalculated / shiftHrs;
+                    const rowManShifts = rowShiftsNeeded * currentMan;
+                    const rowDays = rowShiftsNeeded / workingShift;
+                    
+                    secShift += rowShiftsNeeded;
+                    secMan += currentMan;
+                    secManShift += rowManShifts;
+                    secDays += rowDays;
+
+                    totalShifts += rowShiftsNeeded; totalMan += currentMan; totalDays += rowDays; totalManShifts += rowManShifts;
+                    
+                    let cShift = document.getElementById(`p3_row_${localRowCounter}_shift`);
+                    let cDays = document.getElementById(`p3_row_${localRowCounter}_days`);
+                    let cManShift = document.getElementById(`p3_row_${localRowCounter}_manshift`);
+                    let cHrsDisplay = document.getElementById(`p3_row_${localRowCounter}_hrs_display`);
+                    
+                    if(cShift) cShift.textContent = rowShiftsNeeded.toFixed(2);
+                    if(cDays) cDays.textContent = rowDays.toFixed(2);
+                    if(cManShift) cManShift.textContent = rowManShifts.toFixed(2);
+                    if(cHrsDisplay) cHrsDisplay.textContent = targetHrs; 
+                    
+                    localRowCounter++;
+                });
+
+                let hShift = document.getElementById(`p3_sec_${secIdx}_shift`);
+                let hMan = document.getElementById(`p3_sec_${secIdx}_man`);
+                let hManShift = document.getElementById(`p3_sec_${secIdx}_manshift`);
+                let hDays = document.getElementById(`p3_sec_${secIdx}_days`);
+
+                if(hShift) hShift.textContent = secShift.toFixed(2);
+                if(hMan) hMan.textContent = secMan; 
+                if(hManShift) hManShift.textContent = secManShift.toFixed(2);
+                if(hDays) hDays.textContent = secDays.toFixed(2);
+            });
+        }
+        document.getElementById('p3GrandShift').textContent = totalShifts.toFixed(2);
+        document.getElementById('p3GrandMan').textContent = totalMan;
+        document.getElementById('p3GrandManShift').textContent = totalManShifts.toFixed(2);
+        document.getElementById('p3GrandDays').textContent = totalDays.toFixed(2);
+    }
+
+    /* ----------- PAGE 5 LEAD TIME MATRIX ----------- */
+
+    function renderLeadTimePage() {
+        let totalQty = 0;
+        for(let i=0; i<5; i++) {
+            document.getElementById(`lt_qty_${i}`).value = leadTimeData.quantities[i];
+            totalQty += parseFloat(leadTimeData.quantities[i]) || 0;
+        }
+        document.getElementById('lt_qty_total').textContent = totalQty;
+
+        const body = document.getElementById('ltBody'); if(!body) return; body.innerHTML = '';
+        
+        let footAvail = 0;
+        let footBases = [0, 0, 0, 0, 0];
+        let footShifts = [0, 0, 0, 0, 0];
+        let footGrandTotal = 0;
+
+        leadTimeData.rows.forEach((row, rowIdx) => {
+            let tr = document.createElement('tr');
+            
+            let tdDept = document.createElement('td');
+            tdDept.className = 'lt-green';
+            tdDept.textContent = row.dept;
+            tr.appendChild(tdDept);
+            
+            let tdAvail = document.createElement('td');
+            tdAvail.className = 'editable-cell-dash';
+            tdAvail.innerHTML = `<input type="number" value="${row.avail}" style="text-align:center; width:100%; border:none; font-weight:bold;" oninput="updateLeadTimeData('avail', ${rowIdx}, this.value)">`;
+            tr.appendChild(tdAvail);
+            
+            let rowAvail = parseFloat(row.avail) || 0;
+            footAvail += rowAvail;
+
+            let rowTotalShift = 0;
+            
+            for(let i=0; i<5; i++) {
+                let baseVal = parseFloat(row.bases[i]) || 0;
+                let tdBase = document.createElement('td');
+                tdBase.className = 'editable-cell-dash';
+                tdBase.innerHTML = `<input type="number" step="0.01" value="${baseVal}" oninput="updateLeadTimeData('base', ${rowIdx}, this.value, ${i})">`;
+                tr.appendChild(tdBase);
+                footBases[i] += baseVal;
+                
+                let calcShift = baseVal * (parseFloat(leadTimeData.quantities[i]) || 0);
+                let tdShift = document.createElement('td');
+                tdShift.className = 'readonly-pink';
+                tdShift.textContent = calcShift ? calcShift.toFixed(2).replace(/\.00$/, '') : "0";
+                tr.appendChild(tdShift);
+                
+                rowTotalShift += calcShift;
+                footShifts[i] += calcShift;
+            }
+
+            let tdTotal = document.createElement('td');
+            tdTotal.textContent = rowTotalShift ? rowTotalShift.toFixed(2).replace(/\.00$/, '') : "0.0";
+            
+            if (rowAvail < rowTotalShift) {
+                tdTotal.className = 'lt-total-red';
+            } else if (rowAvail > rowTotalShift) {
+                tdTotal.className = 'lt-total-green';
+            } else {
+                tdTotal.className = 'lt-total-white';
+            }
+
+            tr.appendChild(tdTotal);
+            footGrandTotal += rowTotalShift;
+            
+            body.appendChild(tr);
+        });
+
+        document.getElementById('lt_foot_avail').textContent = footAvail;
+        
+        let grandTotalCell = document.getElementById('lt_foot_grand_total');
+        grandTotalCell.textContent = footGrandTotal.toFixed(2);
+        
+        if (footAvail < footGrandTotal) {
+            grandTotalCell.className = 'lt-total-red';
+        } else if (footAvail > footGrandTotal) {
+            grandTotalCell.className = 'lt-total-green';
+        } else {
+            grandTotalCell.className = 'lt-total-white';
+        }
+
+        for(let i=0; i<5; i++) {
+            document.getElementById(`lt_foot_base${i}`).textContent = footBases[i] ? footBases[i].toFixed(2).replace(/\.00$/, '') : "0";
+            document.getElementById(`lt_foot_shift${i}`).textContent = footShifts[i] ? footShifts[i].toFixed(2).replace(/\.00$/, '') : "0";
+        }
+    }
+
+    function updateLeadTimeData(type, rowIdx, value, colIdx = null) {
+        let val = parseFloat(value) || 0;
+        
+        if (type === 'qty') {
+            leadTimeData.quantities[rowIdx] = val;
+        } else if (type === 'avail') {
+            leadTimeData.rows[rowIdx].avail = val;
+        } else if (type === 'base') {
+            leadTimeData.rows[rowIdx].bases[colIdx] = val;
+        }
+
+        localStorage.setItem('v23_lead_time_db', JSON.stringify(leadTimeData));
+        
+        if (type === 'qty') {
+            let totalQty = 0;
+            for(let i=0; i<5; i++) {
+                totalQty += parseFloat(leadTimeData.quantities[i]) || 0;
+            }
+            document.getElementById('lt_qty_total').textContent = totalQty;
+        }
+        
+        let footBases = [0, 0, 0, 0, 0];
+        let footShifts = [0, 0, 0, 0, 0];
+        let footGrandTotal = 0;
+        let footAvail = 0;
+
+        const tableRows = document.getElementById('ltBody').children;
+
+        leadTimeData.rows.forEach((row, r) => {
+            let rowTotalShift = 0;
+            let rowAvail = parseFloat(row.avail) || 0;
+            footAvail += rowAvail;
+
+            for(let i=0; i<5; i++) {
+                let baseVal = parseFloat(row.bases[i]) || 0;
+                footBases[i] += baseVal;
+
+                let calcShift = baseVal * (parseFloat(leadTimeData.quantities[i]) || 0);
+                rowTotalShift += calcShift;
+                footShifts[i] += calcShift;
+
+                let shiftCellIndex = 3 + (i * 2); 
+                tableRows[r].children[shiftCellIndex].textContent = calcShift ? calcShift.toFixed(2).replace(/\.00$/, '') : "0";
+            }
+            
+            let totalCell = tableRows[r].children[12];
+            totalCell.textContent = rowTotalShift ? rowTotalShift.toFixed(2).replace(/\.00$/, '') : "0.0";
+            
+            if (rowAvail < rowTotalShift) {
+                totalCell.className = 'lt-total-red';
+            } else if (rowAvail > rowTotalShift) {
+                totalCell.className = 'lt-total-green';
+            } else {
+                totalCell.className = 'lt-total-white';
+            }
+
+            footGrandTotal += rowTotalShift;
+        });
+
+        document.getElementById('lt_foot_avail').textContent = footAvail;
+        
+        let grandTotalCell = document.getElementById('lt_foot_grand_total');
+        grandTotalCell.textContent = footGrandTotal.toFixed(2);
+        
+        if (footAvail < footGrandTotal) {
+            grandTotalCell.className = 'lt-total-red';
+        } else if (footAvail > footGrandTotal) {
+            grandTotalCell.className = 'lt-total-green';
+        } else {
+            grandTotalCell.className = 'lt-total-white';
+        }
+
+        for(let i=0; i<5; i++) {
+            document.getElementById(`lt_foot_base${i}`).textContent = footBases[i] ? footBases[i].toFixed(2).replace(/\.00$/, '') : "0";
+            document.getElementById(`lt_foot_shift${i}`).textContent = footShifts[i] ? footShifts[i].toFixed(2).replace(/\.00$/, '') : "0";
+        }
+    }
+
+    function switchTab(evt, pageName) {
+        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(pageName).style.display = 'block';
+        evt.currentTarget.classList.add('active');
+    }
+
+    window.onload = () => { runMasterSyncChain(); };
+</script>
+</body>
+</html>
